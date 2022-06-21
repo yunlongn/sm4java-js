@@ -8,3 +8,4 @@
 
 - * CBC算法需要 两个参数 iv 以及 secretKey 
 - * ECB算法需要 一个参数 secretKey 
+- * 密钥 以及 Iv 建议用 16 位的随机字符串
