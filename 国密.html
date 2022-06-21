@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+        
+<!--        &lt;!&ndash;sm4所需js&ndash;&gt;-->
+<!--        <script src="js/utils/hex.js"></script>-->
+<!--        <script src="js/utils/byteUtil.js"></script>-->
+		<script src="sm4.js"></script>
+
+	</head>
+	<body>
+		<div style="text-align:center;">
+			全部传字符串进去、 不用管什么进制啥的。 你就放你要加密的字符串。 原来的密钥啥的 F12打开控制台查看数据
+		</div>
+		<script>
+			var data = encryptData_ECB("加密 ECB", "mLGFIwf7fnYckSqL");
+			console.log(decryptData_ECB(data, "mLGFIwf7fnYckSqL"))
+			var data2 = encryptData_CBC("加密 CBC", "mLGFIwf7fnYckSqL", "mLGFIwf7fnYckSqL");
+			console.log(decryptData_CBC(data2, "mLGFIwf7fnYckSqL", "mLGFIwf7fnYckSqL"))
+			// 解密数据返回字符串
+			function decryptData_ECB(data, secretKey) {
+				var byteEcb = base64js.toByteArray(data)
+				// 字符串转换成byte
+				var key = stringToByte(secretKey);
+				var sm4 = new SM4();
+				// 进行sm
+				var plain = sm4.decrypt_ecb(key,byteEcb);
+				// 这里可以不转字符串可以转16进制 方法为Hex.encode
+				return Hex.bytesToUtf8Str(plain);
+			}
+			// 使用 secretKey 加密数据
+			function encryptData_ECB(data, secretKey) {
+
+				// 可能会出问题的地方 这里没有进行编码
+				var inputBytes = stringToByte(data);
+
+				var key = stringToByte(secretKey);
+				var sm4 = new SM4();
+				var cipher = sm4.encrypt_ecb(key,inputBytes);
+				// byte流转base字符串。
+				var cipherText = base64js.fromByteArray(cipher);
+				if (cipherText != null && cipherText.trim().length > 0)
+				{
+					cipherText.replace(/(\s*|\t|\r|\n)/g, "");
+				}
+				return cipherText;
+			}
+
+			// 解密数据返回字符串
+			function decryptData_CBC(data, ivtext,secretKey) {
+				var inputBytes = base64js.toByteArray(data);
+				var key = stringToByte(secretKey);
+				var iv = stringToByte(ivtext);
+				var sm4 = new SM4();
+				var plain = sm4.decrypt_cbc(key,iv,inputBytes);
+				// 这里可以不转字符串可以转16进制 方法为Hex.encode
+				return Hex.bytesToUtf8Str(plain);
+			}
+			// 使用 secretKey， ivtext 加密数据
+			function encryptData_CBC(data, ivtext,secretKey) {
+				var inputBytes = stringToByte(data);
+				var key = stringToByte(secretKey);
+				var iv = stringToByte(ivtext);
+				var sm4 = new SM4();
+				var cipher = sm4.encrypt_cbc(key,iv,inputBytes);
+				// byte流转base字符串。
+				var cipherText = base64js.fromByteArray(cipher);
+				if (cipherText != null && cipherText.trim().length > 0)
+				{
+					cipherText.replace(/(\s*|\t|\r|\n)/g, "");
+				}
+				return cipherText;
+			}
+
+
+			function stringToByte(str) {
+				var bytes = new Array();
+				var len, c;
+				len = str.length;
+				for(var i = 0; i < len; i++) {
+					c = str.charCodeAt(i);
+					if(c >= 0x010000 && c <= 0x10FFFF) {
+						bytes.push(((c >> 18) & 0x07) | 0xF0);
+						bytes.push(((c >> 12) & 0x3F) | 0x80);
+						bytes.push(((c >> 6) & 0x3F) | 0x80);
+						bytes.push((c & 0x3F) | 0x80);
+					} else if(c >= 0x000800 && c <= 0x00FFFF) {
+						bytes.push(((c >> 12) & 0x0F) | 0xE0);
+						bytes.push(((c >> 6) & 0x3F) | 0x80);
+						bytes.push((c & 0x3F) | 0x80);
+					} else if(c >= 0x000080 && c <= 0x0007FF) {
+						bytes.push(((c >> 6) & 0x1F) | 0xC0);
+						bytes.push((c & 0x3F) | 0x80);
+					} else {
+						bytes.push(c & 0xFF);
+					}
+				}
+				return bytes;
+			}
+
+			function strToHexCharCode(str) {
+				if(str === "")
+					return "";
+				var hexCharCode = [];
+				hexCharCode.push("0x");
+				for(var i = 0; i < str.length; i++) {
+					hexCharCode.push((str.charCodeAt(i)).toString(16));
+				}
+				return hexCharCode.join("");
+			}
+
+
+		</script>
+
+    </body>
+</html>
