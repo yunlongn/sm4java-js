@@ -1,5 +1,5 @@
-﻿
-### Java SM4 or js SM4
+﻿包含js和java的SM4加解密代码
+### Java SM4 or js SM4 
 
 - src 下存放Java版本SM4算法。入参出参 都是Base64转换的字符串
 - 国密.html 下存放 Js 版本SM4算法。入参出参 都是Base64转换的字符串
